@@ -1,0 +1,204 @@
+s5day90 服务器管理系统
+
+内容回顾：
+	- 资产采集部分：
+		- 接口，抽象类+抽象方法
+		- 线程池
+			- py2：        进程池
+			- py3：线程池和进程池  **
+		- 插板式插件【Django中间件】
+		- 配置文件【Django配置文件】
+		- request.POST(data和json)
+			data: 
+				...
+				a=1&b=2
+			json: 
+				application/json
+				"{a:1,b:2}"
+
+	- API
+		获取： {新资产数据}
+		  DB: 
+		
+		
+	- 数据库
+		
+		
+		
+今日内容：
+	- 资产入库【反射】
+		- 基于反射实现资产入库【代码混在在一起】
+		- API插件式操作：
+			- Django配置文件 
+			- plugins
+				- 硬盘
+				- 网卡
+				- 内存
+				特殊：服务器，basic，board
+				
+			- 客户端采集资产时，配置文件 plugin_items时，更新操作
+		作业：
+			今日：
+				0. 代码流程
+				1. 服务器信息和硬盘信息【status=False,写错误日志】
+				2. 硬盘信息资产变更日志
+			第一天：
+				1. 网卡
+			第二天：
+				1. 内存
+		
+	- 获取今日未采集主机列表（Q）
+		- 数据增加两个字段
+				class Server(models.Model):
+				"""
+				服务器信息
+				"""
+				# asset = models.OneToOneField('Asset')
+
+				server_status_choices = (
+					(1, '上架'),
+					(2, '在线'),
+					(3, '离线'),
+					(4, '下架'),
+				)
+
+				server_status_id = models.IntegerField(choices=server_status_choices, default=1)
+				...
+
+				latest_date = models.DateTimeField(null=True,blank=True)
+		- GET请求获取未采集服务器列表
+				def server(request):
+					if request.method == "GET":
+						current_date = date.today()
+						# 获取今日未采集的主机列表
+						host_list = models.Server.objects.filter(
+							Q(Q(latest_date=None)|Q(latest_date__date__lt=current_date)) & Q(server_status_id=2)
+						).values('hostname')
+						host_list = list(host_list)
+						return HttpResponse(json.dumps(host_list))
+	
+		- 客户端：
+			class SaltSshClient(BaseClient):
+
+				def task(self,host):
+					obj = PluginManager(host)
+					server_dict = obj.exec_plugin()
+					self.post_server_info(server_dict)
+
+				def get_host_list(self):
+					response = requests.get(self.api)
+					# print(response.text) # [{"hostname": "c1.com"}]
+					return json.loads(response.text)
+
+				def exec(self):
+					pool = ThreadPoolExecutor(10)
+
+					host_list = self.get_host_list()
+					for host in host_list:
+						pool.submit(self.task,host['hostname'])
+		- 记得更新时间
+			class Server(object):
+
+				def __init__(self,server_obj,basic_dict,board_dict):
+					self.server_obj = server_obj
+					self.basic_dict = basic_dict
+					self.board_dict = board_dict
+
+				def process(self,):
+					# 更新server表
+					tmp = {}
+					tmp.update(self.basic_dict['data'])
+					tmp.update(self.board_dict['data'])
+					。。。
+
+					self.server_obj.latest_date = datetime.datetime.now()
+					self.server_obj.save()
+					if record_list:
+						models.ServerRecord.objects.create(server_obj=self.server_obj, content=';'.join(record_list))
+	
+	- API验证（*），Tornado签名cookie源码
+		想法一：
+			- Django程序发送请求头：
+				auth-api   -->   request.META['HTTP_AUTH_API']
+	
+		想法二：
+			- md5和时间，请求头中的值动态起来
+			- 生成很多可以被攻击的：fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+			
+			- 10年：
+				- fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+				- fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+				- fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+				- fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+				- fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+				- fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+				- fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+				- fdfe3a0f1acd28d2b825138a941e3c73|1506571608.2450485
+				
+			- 时间限制【时间限制】
+			- 加密规则限制【字符串不能被修改】
+			存在问题：
+			
+		解决方案：
+			1. 时间         [10s]
+			2. 加密规则 
+			3. 是否已经存在【10s】
+			
+			
+			AES加密
+				http://www.cnblogs.com/wupeiqi/articles/6746744.html
+			
+	
+	
+假期作业：
+	第四天：API
+	第五天：Django思维导图
+			- wsgi
+			- 中间件
+			- URL
+	第六天：Django思维导图
+			- CBV&FBV
+			- 请求相关：
+				 -请求头和请求体
+				 - cookie
+				 - session
+			- 响应：
+				。。。
+			- 模板：
+				- 模板自定义方法
+	第七天：Django思维导图
+			- ORM（性能）
+			
+	第八天：Django思维导图		
+			- Form，ModelForm
+			- 信号
+			- 缓存
+			- 分页
+			- 序列化
+			- Ajax：csrf
+			- xss
+			...
+			
+	要求：
+		每一天写博客：
+			【创建时间】
+			地址发给组长
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
