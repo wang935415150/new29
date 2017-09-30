@@ -56,6 +56,7 @@ def api_auth(func):
         visited_keys[client_md5_str] = client_float_ctime#如果上面的都通过加入缓存器
         return func(request,*args,**kwargs)
     return inner
+
 @api_auth
 def test(request):
     '''
