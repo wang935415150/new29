@@ -11,7 +11,7 @@ class Nic(object):
             interfaces_info = self.linux_interfaces(cmd_func)
 
         self.standard(interfaces_info)
-        print("nic process")
+
         return interfaces_info
 
     def linux_interfaces(self, command_func):

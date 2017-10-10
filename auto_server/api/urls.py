@@ -19,4 +19,5 @@ from . import views
 urlpatterns = [
     url(r'^server.html$', views.server),
     url(r'^test.html$', views.test),
+    url(r'^tran.html$', views.tran),
 ]

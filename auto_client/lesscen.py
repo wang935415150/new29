@@ -24,5 +24,4 @@ def lesscen():
     auth_header_val = "%s|%s" %(md5_str,ctime,)
     response = requests.get(settings.GET_API,headers={'auth-api':auth_header_val})
     response=json.loads(response.text)
-    print(response)
     return response

@@ -10,8 +10,6 @@ PLUGIN_ITEMS = {
 
 API = "http://127.0.0.1:8000/api/server.html"
 
-GET_API = 'http://127.0.0.1:8000/api/test.html'
-
 TEST = True
 
 MODE = "SSH" # AGENT/SSH/SALT

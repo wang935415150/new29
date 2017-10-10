@@ -2,6 +2,22 @@ import importlib
 import requests
 from lib.config import settings
 import traceback
+# def func():
+#     server_info = {}
+#     for k,v in settings.PLUGIN_ITEMS.items():
+#         # 找到v字符串：src.plugins.nic.Nic，src.plugins.disk.Disk
+#         module_path,cls_name = v.rsplit('.',maxsplit=1)
+#         module = importlib.import_module(module_path)
+#         cls = getattr(module,cls_name)
+#         obj = cls()
+#         ret = obj.process()
+#         server_info[k] = ret
+#
+#     requests.post(
+#         url=settings.API,
+#         data=server_info
+#     )
+
 class PluginManager(object):
     def __init__(self,hostname=None):
         self.hostname = hostname
@@ -12,6 +28,8 @@ class PluginManager(object):
             self.ssh_user = settings.SSH_USER
             self.ssh_port = settings.SSH_PORT
             self.ssh_pwd = settings.SSH_PWD
+
+
     def exec_plugin(self):
         server_info = {}
         for k,v in self.plugin_items.items():
@@ -22,6 +40,7 @@ class PluginManager(object):
                 module_path,cls_name = v.rsplit('.',maxsplit=1)
                 module = importlib.import_module(module_path)
                 cls = getattr(module,cls_name)
+
                 if hasattr(cls,'initial'):
                     obj = cls.initial()
                 else:
@@ -30,10 +49,11 @@ class PluginManager(object):
                 info['data'] = ret
             except Exception as e:
                 info['status'] = False
-                info['data']=self.hostname
                 info['msg'] = traceback.format_exc()
+
             server_info[k] = info
         return server_info
+
     def exec_cmd(self,cmd):
         if self.mode == "AGENT":
             import subprocess

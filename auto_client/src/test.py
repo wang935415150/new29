@@ -44,6 +44,33 @@
 
 
 
+"""
+from abc import abstractmethod,ABCMeta
+
+class Foo(metaclass=ABCMeta):
+
+    @abstractmethod
+    def exec(self):pass
+
+class A(Foo):
+    pass
+
+obj = A()
+"""
+
+"""
+class Foo(object):
+    def exec(self):
+        raise NotImplementedError('请实现exec方法')
+class A(Foo):
+    pass
+
+obj = A()
+obj.exec()
+"""
+
+
+
 
 
 
