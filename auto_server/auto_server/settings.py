@@ -25,7 +25,7 @@ SECRET_KEY = '#8f*9yeui+w1*q##!08at%-42))t=w6ztu)xp!!_-gyo2(5!7$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -120,7 +120,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATICFILES_DIRS=(os.path.join(BASE_DIR,"static"),)
 
 PLUGIN_ITEMS = {
     "nic": "api.plugins.nic.Nic",

@@ -1,0 +1,61 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+    <script src="{% static 'js/jquery-3.2.1.js' %}"></script>
+    <style>
+        .loading{
+            position: fixed;
+            top:0px;
+            bottom: 0px;
+            right:0px;
+            left: 0px;
+            background-color: white;
+            opacity: 0.9;
+            z-index: 1000;
+        }
+        .loading .img{
+            position: fixed;
+            height: 320px;
+            width: 320px;
+            background: url('{% static 'img/loading.gif' %} ');
+            z-index: 1001;
+            left: 50%;
+            top: 50%;
+            margin-left: -160px;
+            margin-top: -160px;
+
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>服务器管理</h1>
+    <table class="table table-bordered">
+        <thead id="tHead">
+        <tr></tr>
+        </thead>
+        <tbody id="tBody">
+
+        </tbody>
+        <div class="loading hide">
+            <div class="img"></div>
+        </div>
+    </table>
+</div>
+<script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/my_public.js' %}">
+
+</script>
+<script>
+    $(function () {
+        $.nBList('/web/index_ajax.html');
+    })
+</script>
+</body>
+</html>
