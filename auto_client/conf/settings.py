@@ -8,11 +8,11 @@ PLUGIN_ITEMS = {
     "memory": "src.plugins.memory.Memory",
 }
 
-API = "http://127.0.0.1:8000/api/server.html"
+API = "http://192.168.1.101:8080/api/server.html"
 
 TEST = True
 
-MODE = "SSH" # AGENT/SSH/SALT
+MODE = "AGENT" # AGENT/SSH/SALT
 
 SSH_USER = "root"
 SSH_PORT = 22

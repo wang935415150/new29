@@ -1,0 +1,117 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+    <script src="{% static 'js/jquery-3.2.1.js' %}"></script>
+    <style>
+        .loading{
+            position: fixed;
+            top:0px;
+            bottom: 0px;
+            right:0px;
+            left: 0px;
+            background-color: white;
+            opacity: 0.9;
+            z-index: 1000;
+        }
+        .loading .img{
+            position: fixed;
+            height: 320px;
+            width: 320px;
+            background: url('{% static 'img/loading.gif' %} ');
+            z-index: 1001;
+            left: 50%;
+            top: 50%;
+            margin-left: -160px;
+            margin-top: -160px;
+
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>网卡管理</h1>
+    <table class="table table-bordered">
+        <thead id="tHead">
+        <tr></tr>
+        </thead>
+        <tbody id="tBody">
+
+        </tbody>
+        <div class="loading hide">
+            <div class="img"></div>
+        </div>
+    </table>
+</div>
+<script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/my_public.js' %}">
+
+</script>
+<script>
+    (function () {
+        
+        init()
+    })();
+    String.prototype.format = function (args) {
+        return this.replace(/\{(\w+)\}/g, function (s, i) {
+            return args[i];
+        });
+    };
+
+    function init() {
+        var urlhtml="http://127.0.0.1:8000/web/nic_ajax.html";
+        $.ajax({
+            url:urlhtml,
+            type:"GET",
+            data:{},
+            dataType:'JSON',
+            success:function (response) {
+                addtHead(response.table_config);
+                addtBody(response.table_config,response.data_list)
+            }
+        })
+    }
+{#    制作头#}
+    function addtHead(table_list){
+        $('#tHead tr').empty();
+        $.each(table_list,function (k,conf) {
+            if (conf.display){
+                var th=document.createElement('th');
+            th.innerHTML=conf.title;
+            $('#tHead tr').append(th);
+            }
+        })
+    }
+{#    制作内容#}
+    function addtBody(table_config,data_list) {
+        $.each(data_list,function (k,row_dict) {
+            var tr = document.createElement('tr');
+            $.each(table_config,function (kk,vv) {
+                if(vv.display){
+                var td = document.createElement('td');
+                var format_dict = {};
+                $.each(vv.text.kwargs,function (kkk,vvv) {
+                    if (vvv[0]=='@'){
+                        var name = vvv.substring(1,vvv.length);
+                        format_dict[kkk]=row_dict[name];
+                    }else{
+                        format_dict[kkk]=vvv;
+                    }
+                });
+                td.innerHTML=vv.text.tpl.format(format_dict)
+                $(tr).append(td);
+                }
+            });
+            $('#tBody').append(tr);
+        });
+    }
+
+
+</script>
+</body>
+</html>

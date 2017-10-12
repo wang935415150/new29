@@ -21,4 +21,8 @@ urlpatterns = [
     url(r'^index_ajax.html$', views.index_ajax),
     url(r'^disk.html$', views.disk),
     url(r'^disk_ajax.html$', views.disk_ajax),
+    url(r'^nic.html$', views.nic),
+    url(r'^nic_ajax.html$', views.nic_ajax),
+
+    url(r'^test.html$', views.test),
 ]
