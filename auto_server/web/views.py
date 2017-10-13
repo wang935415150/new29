@@ -1,167 +1,161 @@
+import json
 from django.shortcuts import render,HttpResponse
-from repository import models
 from django.http import JsonResponse
-# Create your views here.
-def index(request):
-    return render(request,'index.html')
-def index_ajax(request):
-    table_config=[
+from repository import models
+
+def server(request):
+    return render(request,'server.html')
+
+def server_json(request):
+    table_config = [
         {
-            'q':None,
-            'display': True,
-         'title':'选择',
-         'text':{
-           'tpl':'<input type="checkbox" value="{nid}"/>','kwargs':{'nid':'@id'}},
-         },
-        {
-          'q':'id',
-            'display': False,
-           'title':'id',
-            'text':{
-                'tpl':'{a1}','kwargs':{'a1':'@id'}}
+            'q': None,
+            "display": True,
+            'title': '选择',
+            'text': {'tpl':'<input type="checkbox" value="{nid}" />','kwargs':{'nid': '@id' }},
+
         },
         {
-            'q':'hostname',
-            'display': True,
-         'title':'主机名',
-         'text':{
-             'tpl':'{a1}','kwargs':{'a1':'@hostname'}},
-         },
+            'q': 'id',
+            "display": False,
+            'title': 'ID',
+            'text': {'tpl': '{a1}', 'kwargs': {'a1': '@id'}},
+        },
+        {
+            'q': 'hostname',
+            "display": True,
+            'title': '主机名',
+            'text': {'tpl': '{a1}-{a2}','kwargs':{'a1': '@hostname','a2':'666'}},
+        },
         {
             'q': 'sn',
-            'display': True,
-         'title': 'sn号',
-         'text':{'tpl':'{a1}','kwargs':{'a1':'@sn'}},
-        },
-        {
-            'q': 'server_status_id',
-            'display': True,
-            'title': '当前状态',
-            'text': {'tpl': '{a1}', 'kwargs': {'a1': '@@status_choices'}},
+            'title': '序列号',
+            "display": True,
+            'text': {'tpl': '{a1}','kwargs':{'a1': '@sn'}},
         },
         {
             'q': 'os_platform',
-            'display': True,
-         'title': '系统',
-         'text':{'tpl':'{a1}','kwargs':{'a1':'@os_platform'}},
-         },
+            'title': '系统',
+            "display": True,
+            'text': {'tpl': '{a1}','kwargs':{'a1': '@os_platform'}},
+        },
         {
-            'q':None,
-            'display': True,
-         'title':'编辑',
-         'text':{'tpl':'<a herf="/web/{nid1}">编辑</a>|<a herf="/web/{nid2}">删除</a>','kwargs':{'nid1':'@id','nid2':'@id'}},
+            'q': 'os_version',
+            "display": True,
+            'title': '系统版本',
+            'text': {'tpl': '{a1}','kwargs':{'a1': '@os_version'}},
+        },
+        {
+            'q': 'business_unit__name',
+            "display": True,
+            'title': '业务线',
+            'text': {'tpl': '{a1}','kwargs':{'a1': '@business_unit__name'}},
+        },
+        {
+            'q': 'server_status_id',
+            "display": True,
+            'title': '服务器状态',
+            'text': {'tpl': '{a1}', 'kwargs': {'a1': '@@status_choices'}},
+        },
+        {
+            'q': None,
+            "display": True,
+            'title': '操作',
+            'text': {'tpl': '<a href="/edit/{nid}/">编辑</a> | <a href="/del/{uid}/">删除</a> ', 'kwargs': {'nid': '@id','uid': '@id'}},
         },
     ]
-    values=[]
+
+    values = []
     for item in table_config:
         if item['q']:
-
             values.append(item['q'])
     server_list = models.Server.objects.values(*values)
-    response={
-        'data_list':list(server_list),
-        'table_config':table_config,
+    """
+    [
+        {'hostname':'xx', 'sn':'xx', 'os_platform':'xxx'},
+        {'hostname':'xx', 'sn':'xx', 'os_platform':'xxx'},
+        {'hostname':'xx', 'sn':'xx', 'os_platform':'xxx'},
+        {'hostname':'xx', 'sn':'xx', 'os_platform':'xxx'},
+        {'hostname':'xx', 'sn':'xx', 'os_platform':'xxx'},
+    ]
+
+    """
+    response = {
+        'data_list': list(server_list),
+        'table_config': table_config,
         'global_choices_dict':{
-            'status_choices':models.Server.server_status_choices
+            'status_choices': models.Server.server_status_choices
         }
     }
+
     return JsonResponse(response)
+
 
 
 def disk(request):
     return render(request,'disk.html')
-def disk_ajax(request):
-    table_config=[
+
+def disk_json(request):
+    table_config = [
         {
-            'q':None,
-         'title':'选择',
-         'text':{'tpl':'<input type="checkbox" value="{nid}"/>','kwargs':{'nid':'@id'}},
+            'q': None,
+            'title': '选择',
+            'text': {'tpl': '<input type="checkbox" value="{nid}" />', 'kwargs': {'nid': '@id'}},
         },
         {
-            'q':'id',
-         'title':'id',
-         'text':{'tpl':"{a1}",'kwargs':{'a1':'@id'}},
-         },
-        {
-            'q':'slot',
-            'title':'槽位',
-            'text':{'tpl':'槽位{a1}','kwargs':{'a1':'@slot'}},
+            'q': 'id',
+            'title': 'ID',
+            'text': {'tpl': '{nid}', 'kwargs': {'nid': '@id'}},
         },
         {
-          'q':'pd_type',
-            'title':'硬盘类型',
-            'text':{'tpl':'{a1}','kwargs':{'a1':'@pd_type'}},
-        },
-        {
-            'q':None,
-            'title':'编辑',
-            'text':{'tpl':'<a herf="/web/disk/{nid1}">编辑</a>|<a herf="/web/disk/{nid2}">删除</a>','kwargs':{'nid1':'@id','nid2':'@id'}},
+            'q': 'slot',
+            'title': '槽位',
+            'text': {'tpl': '{nid}', 'kwargs': {'nid': '@slot'}},
         },
     ]
-    values=[]
+
+    values = []
     for item in table_config:
         if item['q']:
             values.append(item['q'])
-    server_list=models.Disk.objects.values(*values)
-    data_list=list(server_list)
-    response={
-        "data_list":data_list,
-        'table_config':table_config
-    }
-    return JsonResponse(response)
-
-def nic(request):
-    return render(request,'nic.html')
-
-def nic_ajax(request):
-    table_config=[
-        {'q':None,
-         'display':True,
-         'title':'选择',
-         'text':{'tpl':'<input type="checkbox" id="{a1}">','kwargs':{'a1':'@id'}},},
-        {
-            'q':'id',
-            'display': False,
-            'title':'id',
-            'text':{'tpl':'{a1}','kwargs':{'a1':'@id'}},},
-        {
-            'q':'name',
-            'display': True,
-            'title':'网卡名称',
-            'text':{"tpl":'{a1}','kwargs':{'a1':'@name'}},},
-        {
-            'q':'ipaddrs',
-            'display': True,
-            'title':'IP地址',
-            'text':{'tpl':'{a1}','kwargs':{'a1':'@ipaddrs'}},},
-        {
-          'q':None,
-            'display': True,
-            'title':'编辑',
-            'text':{'tpl':'<a href="web/nic/{a1}">编辑</a>|<a href="web/nic/{a2}">删除</a>','kwargs':{'a1':'@id','a2':'@id'}}
-        },
-    ]
-    value=[]
-    for i in table_config:
-        if i['q']:
-            value.append(i['q'])
-    data_list = models.NIC.objects.values(*value)
-    response={
-        'table_config':table_config,
-        'data_list':list(data_list),
+    server_list = models.Disk.objects.values(*values)
+    response = {
+        'data_list': list(server_list),
+        'table_config': table_config
     }
 
     return JsonResponse(response)
+
+
+
+def xxxxx(server_list):
+    # [{},{}]
+    for row in server_list:
+        for item in models.Server.server_status_choices:
+            if item[0] ==  row['server_status_id']:
+                row['server_status_id_name'] = item[1]
+                break
+        yield row
+
 
 
 def test(request):
-    data = models.Server.objects.values('hostname','server_status_id')
-    def yeildd(server_list):
-        for row in server_list:
-            for item in models.Server.server_status_choices:
-                if item[0]==row['server_status_id']:
-                    row['server_status_choices_name']=item[1]
-                    break
-            yield row
+    """
+    赠送，模板语言显示choice
+    :param request:
+    :return:
+    """
+    # server_list = models.Server.objects.all()
+    # for row in server_list:
+    #     print(row.id,row.hostname,row.business_unit.name,"===",row.server_status_id,row.get_server_status_id_display() )
 
-    return render(request,'test.html',{'server_list':yeildd(data)})
+    # server_list = models.Server.objects.all().values('hostname','server_status_id')
+    # for row in server_list:
+    #     for item in models.Server.server_status_choices:
+    #         if item[0] ==  row['server_status_id']:
+    #             row['server_status_id_name'] = item[1]
+    #             break
+
+    data_list = models.Server.objects.all().values('hostname', 'server_status_id')
+
+    return render(request,'test.html',{'server_list':xxxxx(data_list)})

@@ -31,7 +31,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>硬盘列表</h1>
+    <h1>服务器列表</h1>
     <table class="table table-bordered">
         <thead id="tHead">
             <tr>
@@ -54,20 +54,8 @@
 <script>
 
     $(function () {
-        $.nBList("/disk_json.html");
-    });
-
-    // var v = new Date();
-    // v.getFullYear();
-    // Date.prototype.getFullYear = function() {};
-
-    String.prototype.format2 = function (kwargs) {
-        return this+"666"
-    };
-
-    var s = "xxxxx";
-    s.format2()
-
+        $.nBList("/server_json.html");
+    })
 
 </script>
 

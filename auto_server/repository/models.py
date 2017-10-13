@@ -86,8 +86,6 @@ class IDC(models.Model):
     def __str__(self):
         return self.name
 
-
-
 class Server(models.Model):
     """
     服务器信息
@@ -138,9 +136,6 @@ class Server(models.Model):
     def __str__(self):
         return self.hostname
 
-
-
-
 class Disk(models.Model):
     """
     硬盘信息
@@ -156,7 +151,6 @@ class Disk(models.Model):
 
     def __str__(self):
         return self.slot
-
 
 class NIC(models.Model):
     """
