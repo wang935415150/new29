@@ -26,14 +26,14 @@ def server_json(request):
          'q':None,
             'title':'选择',
             'display':True,
-            'text':{'tpl':'<input type="checkbox" value="{nid}" />','kwargs':{'nid': '@id' }},
+            'text':{'tpl':'<input type="checkbox" class="checkbox"  value="{nid}" />','kwargs':{'nid': '@id' }},
             'attr': {'class': 'c1', 'nid': '@id'},
         },
         {
             'q':'id',
             'title':'id',
             'display':False,
-            'text':{'tpl':'{a1}','kwargs':{'a1':'@id'},},
+            'text':{'tpl':'{a1}','kwargs':{'a1':'@id'}, },
             'attr': {},
         },
         {
@@ -41,7 +41,7 @@ def server_json(request):
             'title':'主机名',
             'display':True,
             'text':{'tpl':'{a1}','kwargs':{'a1':'@hostname'}},
-            'attr': {'class': 'c1', 'nid': '@id'},
+            'attr': {'class': 'hostname', 'nid': '@id','type':'input'},
 
         },
         {
@@ -49,21 +49,21 @@ def server_json(request):
             'title':'序号',
             'display': True,
             'text':{'tpl':'{a1}','kwargs':{'a1':'@sn'}},
-            'attr': {'class': 'c1', 'nid': '@id'},
+            'attr': {'class': 'sn', 'nid': '@id' ,'type':'input'},
         },
         {
           'q':'os_platform',
             'title':'系统',
             'display':True,
             'text':{'tpl':'{a1}','kwargs':{"a1":'@os_platform'}},
-            'attr': {'class': 'c1', 'nid': '@id'},
+            'attr': {'class': 'os_platform', 'nid': '@id','type':'input'},
         },
         {
             'q':'server_status_id',
             'display':True,
             'title':'服务器状态',
             'text':{'tpl':'{a1}','kwargs':{'a1':'@@status_choices'}},
-            'attr': {'class': 'c1', 'nid': '@id'},
+            'attr': {'class': 'server_status_id', 'nid': '@id','type':'select','option_id':"@server_status_id"},
         },
         {
             'q':None,

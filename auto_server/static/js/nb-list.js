@@ -34,9 +34,11 @@
                     initTableBody(response.data_list,response.table_config);
                     /*初始化一个搜索框*/
                     initSearchCondition(response.search_config);
-
+                    /*分页功能*/
                     pageinhtml(response.page_html);
 
+                    /*这是一个都选框功能*/
+                    bindcheckout(response.search_config,response.global_choices_dict)
 
                 }
             }
@@ -216,6 +218,57 @@
 
     function pageinhtml(page_html) {
         $('#pagination').empty().append(page_html)
+    }
+    
+    function bindcheckout(search_config,global_choices_dict) {
+        var status_choices=global_choices_dict.status_choices;
+        var search_config=search_config;
+        $('#tBody').on('click','.checkbox',function () {
+            if(!$(this).attr('checked')){
+                $(this).attr('checked','checked');
+                $(this).parent().nextAll().each(function () {
+                    if ($(this).attr('class') !='c1' ){
+                        if($(this).attr('type') == 'input'){
+                            var text = $(this).text();
+                            $(this).html('<input class="form-control no-radius" value='+ text +'></input>');
+                        }else if($(this).attr('type') == 'select'){
+                            var tag=document.createElement('select');
+                            tag.className="form-control no-radius";
+                            var option_id=$(this).attr('option_id');
+                            $.each(status_choices,function (k,v) {
+                                var op=document.createElement('option') ;
+                                op.innerHTML=v[1] ;
+                                op.setAttribute('value',v[0]);
+                                if(v[0] == option_id){
+                                    op.setAttribute('selected','selected')
+                                }
+                                $(tag).append(op);
+                            });
+                            $(this).html(tag)
+                        }
+                    }
+                })
+            }else{
+                $(this).removeAttr('checked');
+                $(this).parent().nextAll().each(function () {
+                    if($(this).attr("type") == "input"){
+                        var val=$(this).find('input').val();
+                        $(this).empty();
+                        $(this).text(val)
+                    }else if($(this).attr("type") == "select"){
+                        var val=$(this).find('select').val();
+                        var $this=$(this);
+                        $(this).empty();
+                        $.each(status_choices,function (k,v) {
+                            if (val ==v[0]){
+                                $this.attr('option_id' ,v[0]);
+                                $this.text(v[1]);
+                            }
+                        })
+                    }
+                })
+            }
+        })
     }
 
     jq.extend({
