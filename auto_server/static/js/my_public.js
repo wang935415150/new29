@@ -18,7 +18,6 @@
             return args[i];
         });
     };
-
     function init() {
             $('.loading').removeClass('hide');
             $.ajax({
@@ -38,6 +37,7 @@
                 }
             })
         };
+
     function initTableHead(table_config) {
             $('#tHead tr').empty();
                 $.each(table_config,function(k,conf){
@@ -46,7 +46,6 @@
                     th.innerHTML = conf.title;
                     $('#tHead tr').append(th);
                     }
-
                 })
         };
     function initTableBody(data_list,table_config) {
@@ -72,23 +71,19 @@
                     }else{
                         format_dict[kkk]=vvv;
                     }
-
                 });
                 td.innerHTML = vv.text.tpl.format(format_dict);
                 $(tr).append(td);
                 }
-
             });
             $('#tBody').append(tr);
         });
     }
-
         jq.extend({
             'nBList':function (url) {
                 requestUrl = url;
                 init()
             }
         })
-
 })(jQuery);
 

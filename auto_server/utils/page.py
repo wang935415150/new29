@@ -3,16 +3,22 @@
 
 from utils.page import Pagination
 def users(request):
-    current_page = int(request.GET.get('page',1))
 
-    total_item_count = models.UserInfo.objects.all().count()
+    condition = json.loads(request.GET.get('condition'))
 
-    page_obj = Pagination(current_page,total_item_count,'/users.html')
+    current_page = int(request.GET.get('pageNum', 1))
 
-    user_list = models.UserInfo.objects.all()[page_obj.start:page_obj.end]
+    total_item_count = models.Server.objects.filter().count()
 
-    return render(request,'users.html',{'user_list':user_list,'page_html':page_obj.page_html()})
+    page_obj = Pagination(current_page,total_item_count,'/users.html')#如果需要前缀的进行分页的化使用这个版本
 
+    page_obj = Pagination(current_page, total_item_count, per_page_count=2)
+
+    server_data = models.Server.objects.filter().values(*values)[page_obj.start:page_obj.end]
+
+    调用方式：
+
+    page_html':page_obj.page_html_js()由前端调用直接返回一个js数据
 
 """
 
@@ -28,6 +34,7 @@ class Pagination(object):
         :param base_url: 分页前缀URL
         :param per_page_count:   每页显示数据条数
         :param show_pager_count: 对多显示的页码
+        :param  page_html_test: 通过js在前端进行一个显示
         """
         try:
             current_page = int(current_page)
