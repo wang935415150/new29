@@ -7,6 +7,22 @@
 
     var GLOBAL_CHOICES_DICT={};
 
+    /*请求头的添加*/
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            // 请求头中设置一次csrf-token
+            if(!csrfSafeMethod(settings.type)){
+                xhr.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+            }
+        }
+    });
+    /*请求头的添加完成*/
+
     String.prototype.format = function (args) {
         return this.replace(/\{(\w+)\}/g, function (s, i) {
             return args[i];
@@ -37,8 +53,6 @@
                     /*分页功能*/
                     pageinhtml(response.page_html);
 
-                    /*这是一个都选框功能*/
-                    bindcheckout(response.search_config,response.global_choices_dict)
 
                 }
             }
@@ -219,64 +233,254 @@
     function pageinhtml(page_html) {
         $('#pagination').empty().append(page_html)
     }
+
     
-    function bindcheckout(search_config,global_choices_dict) {
-        var status_choices=global_choices_dict.status_choices;
-        var search_config=search_config;
-        $('#tBody').on('click','.checkbox',function () {
-            if(!$(this).attr('checked')){
-                $(this).attr('checked','checked');
-                $(this).parent().nextAll().each(function () {
-                    if ($(this).attr('class') !='c1' ){
-                        if($(this).attr('type') == 'input'){
-                            var text = $(this).text();
-                            $(this).html('<input class="form-control no-radius" value='+ text +'></input>');
-                        }else if($(this).attr('type') == 'select'){
-                            var tag=document.createElement('select');
-                            tag.className="form-control no-radius";
-                            var origin=$(this).attr('origin');
-                            $.each(status_choices,function (k,v) {
-                                var op=document.createElement('option') ;
-                                op.innerHTML=v[1] ;
-                                op.setAttribute('value',v[0]);
-                                if(v[0] == origin){
-                                    op.setAttribute('selected','selected')
-                                }
-                                $(tag).append(op);
-                            });
-                            $(this).html(tag)
-                        }
-                    }
-                })
-            }else{
-                $(this).removeAttr('checked');
-                $(this).parent().nextAll().each(function () {
-                    if($(this).attr("type") == "input"){
-                        var val=$(this).find('input').val();
-                        $(this).empty();
-                        $(this).text(val)
-                    }else if($(this).attr("type") == "select"){
-                        var val=$(this).find('select').val();
-                        var $this=$(this);
-                        $(this).empty();
-                        $.each(status_choices,function (k,v) {
-                            if (val ==v[0]){
-                                $this.attr('origin' ,v[0]);
-                                $this.text(v[1]);
-                            }
-                        })
-                    }
-                })
+    function trIntoEditMode($tr) {
+        $tr.addClass('success');
+        $tr.find('td[edit="true"]').each(function () {
+            tdIntoEditMode($(this));
+        })
+    }
+
+    function tdIntoEditMode($td) {
+        if($td.attr('edit-type') == 'select'){
+            var choiceKey = $td.attr('choice-key');
+            var origin = $td.attr('origin');
+            var tag = document.createElement('select');
+            tag.className='form-control';
+            $.each(GLOBAL_CHOICES_DICT[choiceKey],function (k,value) {
+                var op = document.createElement('option');
+                op.innerHTML=value[1];
+                op.value=value[0];
+                if(value[0]==origin){
+                    op.setAttribute('selected','selected');
+                }
+                tag.appendChild(op);
+            });
+            $td.html(tag);
+        }else{
+            var text=$td.text();
+            var tag = document.createElement('input');
+            tag.setAttribute('type','text');
+            tag.className='form-control';
+            tag.value = text;
+            $td.html(tag);
+        }
+    }
+
+    function trOutEditMode($tr) {
+        $tr.removeClass('success');
+        $tr.find('td[edit="true"]').each(function () {
+            if (tdOutEditMode($(this))){
+                $tr.attr('edit-status','true');
+            }
+        });
+    }
+
+    function tdOutEditMode($td) {
+        var editStatus=false;
+        var origin=$td.attr('origin');
+        if($td.attr('edit-type')=='select'){
+            var val=$td.find('select').val();
+            var text = $td.find('select option[value="'+val+'"]').text();
+            $td.attr('new-value',val);
+            $td.html(text)
+        }else{
+            var val = $td.find('input').val();
+            $td.html(val);
+        }
+        if(origin != val){
+            editStatus = true;
+        }
+        return editStatus
+    }
+
+    function bindEditModeEvent() {
+        $('#tBody').on('click',':checkbox',function () {
+            if($('#editModeStatus').hasClass('btn-warning')){
+                if($(this).prop('checked')){
+                    var $tr = $(this).parent().parent();
+                    $tr.addClass('success');
+                    $tr.find('td[edit="true"]').each(function () {
+                            tdIntoEditMode($(this));
+                    });
+                }else{
+                    var $tr = $(this).parent().parent();
+                    $tr.removeClass('success');
+                    $tr.find('td[edit="true"]').each(function () {
+            if(tdOutEditMode($(this))){
+                $tr.attr('edit-status','true');
+            }
+                    });
+                }
             }
         })
     }
+
+    function bindBtnGroupEvent() {
+
+        /*进入编辑和退出编辑模式*/
+        $('#editModeStatus').click(function () {
+            if ($(this).hasClass('btn-warning')) {
+                $(this).removeClass('btn-warning');
+                $(this).text('进入编辑模式');
+
+                $('#tBody :checked').each(function () {
+                    var $tr = $(this).parent().parent();
+                    trOutEditMode($tr)
+                })
+            } else {
+                $(this).addClass('btn-warning');
+                $(this).text('退出编辑模式');
+                $('#tBody :checked').each(function () {
+                    var $tr = $(this).parent().parent();
+                    trIntoEditMode($tr);
+                })
+            }
+        });
+
+        /*全选一下*/
+        $('#checkAll').click(function () {
+            $('#tBody :checkbox').each(function () {
+                if (!$(this).prop('checked')) {
+                    $(this).prop('checked', "true");
+                    if ($('#editModeStatus').hasClass('btn-warning')) {
+                        var $tr = $(this).parent().parent();
+                        trIntoEditMode($tr)
+                    }
+                }
+            });
+        });
+        
+        /*取消一下下*/
+        $('#checkCancel').click(function () {
+            $('#tBody :checked').each(function () {
+                $(this).prop('checked', false);
+                if ($('#editModeStatus').hasClass('btn-warning')) {
+                    var $tr = $(this).parent().parent();
+                    trOutEditMode($tr)
+                }
+            })
+        });
+        
+        /*反选*/
+        $('#reverse').click(function () {
+            $('#tBody :checkbox').each(function () {
+                if(!$(this).prop('checked')){
+                    //没被选中的孩子
+                    $(this).prop('checked',true);
+                    //进入编辑模式了么？
+                    if ($('#editModeStatus').hasClass('btn-warning')){
+                        var $tr = $(this).parent().parent();
+                        trIntoEditMode($tr);
+                    }
+                }
+                else{
+                    $(this).prop('checked',false);
+                    if($('#editModeStatus').hasClass('btn-warning')){
+                        var $tr=$(this).parent().parent();
+                        trOutEditMode($tr)
+                    }
+                }
+            })
+        });
+        /*删除*/
+        $('#delMulti').click(function(){
+            $('#tBody :checkbox').each(function () {
+                if($(this).prop('checked')){
+                    $('#alertwarning').text('您真的要删除这些么');
+                    $('#deleteether').attr('class','btn btn-primary');
+                    return false
+                }else{
+                    $('#alertwarning').text('您还什么都没选呢');
+                    $('#deleteether').attr('class','hide');
+                }
+            });
+            $('#demoModal').modal('show');
+        });
+
+        /*确认删除*/
+        $('#deleteether').click(function () {
+            var ids=[];
+            $('#tBody :checked').each(function () {
+                ids.push($(this).val());
+            });
+            $.ajax(
+                {
+                    url:requesturl,
+                    type:'delete',
+                    data:JSON.stringify(ids),
+                    traditional:true,
+                    dataType:"JSON",
+                    success:function (arg) {
+                        if(arg.status){
+                            $('#handleStatus').text('执行成功');
+                            setTimeout(function () {
+                                $('#handleStatus').empty()
+                            },5000)
+                        }else{
+                            $('#handleStatus').text(arg.msg);
+                        }
+                    }
+                }
+            )
+        })
+    }
+        /*保存*/
+        $('#saveMulti').click(function () {
+            if(!$('#editModeStatus').hasClass('btn-warning')){
+                var update_dict=[]
+            $('#tBody tr[edit-status="true"]').each(
+                function () {
+                    var tmp={};
+                    tmp['id']= $(this).children().first().attr('nid');
+                    $(this).children('[edit="true"]').each(
+                        function () {
+                            var origin=$(this).attr('origin');
+                            var name=$(this).attr('name');
+                            if($(this).attr('edit-type') == 'select'){
+                                var newval=$(this).attr('new-value');
+                            }else{
+                                var newval=$(this).text()}
+                                if (origin != newval){
+                                tmp[name]=newval
+                                }
+                        });
+                    update_dict.push(tmp);
+                });
+            $.ajax({
+                url:requesturl,
+                    type:'put',
+                    data:JSON.stringify(update_dict),
+                    traditional:true,
+                    dataType:"JSON",
+                    success:function (arg) {
+
+                        if(arg.status){
+                            $('#handleStatus').text('执行成功');
+                            setTimeout(function () {
+                                $('#handleStatus').empty()
+                            },5000)
+                        }else{
+                            $('#handleStatus').text(arg.msg);
+                        }
+                    }
+            })
+            }
+
+        });
+
 
     jq.extend({
         'nBList':function (url) {
             requesturl=url;
             init(1);
             /*包含一些修改名称的设置*/
-            bindSearchConditionEvent()
+            bindSearchConditionEvent();
+
+            bindBtnGroupEvent();
+
+            bindEditModeEvent();
         },
         'changePage':function (pageNum) {
             init(pageNum)

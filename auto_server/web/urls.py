@@ -17,6 +17,6 @@ from django.conf.urls import url
 from . import views
 urlpatterns = [
     url(r'^server.html$', views.server),
-    url(r'^server_json.html$', views.server_json),
+    url(r'^server_json.html$', views.Server_json.as_view()),
 
 ]
