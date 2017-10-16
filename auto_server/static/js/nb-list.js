@@ -234,12 +234,12 @@
                         }else if($(this).attr('type') == 'select'){
                             var tag=document.createElement('select');
                             tag.className="form-control no-radius";
-                            var option_id=$(this).attr('option_id');
+                            var origin=$(this).attr('origin');
                             $.each(status_choices,function (k,v) {
                                 var op=document.createElement('option') ;
                                 op.innerHTML=v[1] ;
                                 op.setAttribute('value',v[0]);
-                                if(v[0] == option_id){
+                                if(v[0] == origin){
                                     op.setAttribute('selected','selected')
                                 }
                                 $(tag).append(op);
@@ -261,7 +261,7 @@
                         $(this).empty();
                         $.each(status_choices,function (k,v) {
                             if (val ==v[0]){
-                                $this.attr('option_id' ,v[0]);
+                                $this.attr('origin' ,v[0]);
                                 $this.text(v[1]);
                             }
                         })
