@@ -66,7 +66,7 @@
             'text':{'tpl':'{a1}','kwargs':{"a1":'@os_platform'}},
         },
         */
-        $('#tHead tr').empty();
+        $('#tHead').find('tr').empty();
         $.each(table_config,function (k,conf) {
             if (conf.display){
                 var th=document.createElement('th');
@@ -142,9 +142,8 @@
                         $(tag).append(op);
                     });
                     }
-                    $('#searchCondition').find('.input-group').append(tag)
+                    $('#searchCondition').find('.input-group').append(tag);
                     $('#searchCondition').find('.input-group label').text(searchconfig[0].title);
-
             $.each(searchconfig,function (i,item) {
                 var li = document.createElement('li');
                 var a = document.createElement('a');
@@ -243,7 +242,7 @@
     }
 
     function tdIntoEditMode($td) {
-        if($td.attr('edit-type') == 'select'){
+        if($td.attr('edit-type') === 'select'){
             var choiceKey = $td.attr('choice-key');
             var origin = $td.attr('origin');
             var tag = document.createElement('select');
@@ -429,7 +428,7 @@
         /*保存*/
         $('#saveMulti').click(function () {
             if(!$('#editModeStatus').hasClass('btn-warning')){
-                var update_dict=[]
+                var update_dict=[];
             $('#tBody tr[edit-status="true"]').each(
                 function () {
                     var tmp={};

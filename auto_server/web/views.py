@@ -1,4 +1,4 @@
-
+from django.views.decorators.csrf import requires_csrf_token
 from django.shortcuts import render,HttpResponse
 from django.http import JsonResponse
 from repository import models
@@ -6,10 +6,9 @@ from utils.page import Pagination
 from django.db.models import Q
 from django.views import View
 import json
-from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 class Server_json(View):
-    @method_decorator(csrf_exempt)
+    @method_decorator(requires_csrf_token)
     def dispatch(self, request, *args, **kwargs):
         return super(Server_json, self).dispatch(request, *args, **kwargs)
 
@@ -120,6 +119,7 @@ class Server_json(View):
         }
         return JsonResponse(response)
 
+    @method_decorator(requires_csrf_token)
     def delete(self, request):
         id_list=json.loads(request.body.decode('utf-8'))
         response={'status':True,'msg':None}
