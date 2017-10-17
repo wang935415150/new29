@@ -416,13 +416,15 @@
                             $('#handleStatus').text('执行成功');
                             setTimeout(function () {
                                 $('#handleStatus').empty()
-                            },5000)
+                            },5000);
+                            $('#demoModal').modal('hide');
                         }else{
                             $('#handleStatus').text(arg.msg);
                         }
                     }
                 }
             )
+
         })
     }
         /*保存*/
